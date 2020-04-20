@@ -54,6 +54,7 @@ BUILD_DEPS=(
     "qt-deps ${QT_VERSION:-${CI_QT_VERSION}} ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
     "cef ${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION:-${CI_VLC_VERSION}}"
+    "agora ${AGORA_VERSION:-3.0.0}"
     "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
 )
 
@@ -191,6 +192,21 @@ install_vlc() {
     ${CURLCMD} --progress-bar -L -C - -O https://downloads.videolan.org/vlc/${1}/vlc-${1}.tar.xz
     step "Unpack ..."
     /usr/bin/tar -xf vlc-${1}.tar.xz
+}
+
+install_agora() {
+    hr "Setting up Agora RTC SDK v${1}"
+    AGORA_RTC_SDK="${CHECKOUT_DIR}/plugins/mac-agora/"
+    AGORA_RTC_FILE_NAME="Agora_Native_SDK_for_Mac_v3_0_0_FULL.zip"
+    rm -rf ${AGORA_RTC_FILE_NAME}
+    rm -rf Agora_Native_SDK_*
+    ${CURLCMD} --progress-bar -L -C - -O "https://download.agora.io/sdk/release/${AGORA_RTC_FILE_NAME}"
+    UNZIPPED_FOLDER="Agora_RTC"
+    rm -rf "${UNZIPPED_FOLDER}"
+    unzip -o -q -j -q ${AGORA_RTC_FILE_NAME}
+    unzip -q ${AGORA_RTC_FILE_NAME} -d ${UNZIPPED_FOLDER}
+    rm -rf "${AGORA_RTC_SDK}/AgoraRtcKit.framework"
+    mv -f ${UNZIPPED_FOLDER}/Agora_Native_SDK_for_Mac_FULL/libs/AgoraRtcKit.framework ${AGORA_RTC_SDK}
 }
 
 install_sparkle() {
