@@ -377,6 +377,9 @@ bundle_dylibs() {
     /bin/chmod 644 ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/Resources/Info.plist
     install_name_tool -id @executable_path/../Frameworks/QtNetwork.framework/Versions/5/QtNetwork ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
     install_name_tool -change /tmp/obsdeps/lib/QtCore.framework/Versions/5/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore ./OBS.app/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
+
+    step "Copy Agora Frameworks"
+    /bin/cp -R "${DEPS_BUILD_DIR}/Agora_Native_SDK_for_Mac_FULL/libs/" ./OBS.app/Contents/Frameworks
 }
 
 install_frameworks() {

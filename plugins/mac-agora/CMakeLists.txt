@@ -15,7 +15,7 @@ find_library(AGORA
     HINTS
 	ENV AgoraPath
 	${AgoraPath}
-    PATHS . ${AgoraPath}
+    PATHS .
     PATH_SUFFIXES Frameworks
     NO_DEFAULT_PATH)
 

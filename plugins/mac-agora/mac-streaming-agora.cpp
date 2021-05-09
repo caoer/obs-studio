@@ -88,6 +88,9 @@ void RtcEvent::onConnectionLost()
 
 static bool pre_stringified = false;
 static std::string pre_uid = "";
+// dev:
+//static std::string pre_app_id = "c2eb6ea5d9b842ac877421c1358d5261";
+// prod:
 static std::string pre_app_id = "62bbb683a89b4c4d9e937b8ee6af5580";
 static std::string pre_app_token = "";
 static std::string pre_app_channel = "";
@@ -100,7 +103,7 @@ void initAgora(const char* appId)
     {
         return;
     }
-   
+
     agoraKit.reset(new AgoraEngine(appId, new RtcEvent));
 }
 
@@ -148,7 +151,7 @@ double getTS()
     static bool initialized = false;
     static bool valid = false;
     static get_cmtime_t cmtime = nullptr;
-    
+
     if (!initialized)
     {
         void *quartzCore = dlopen("/System/Library/Frameworks/"
@@ -159,7 +162,7 @@ double getTS()
                                                  "CACurrentMediaTime");
             valid = cmtime;
         }
-        
+
         initialized = true;
     }
 
@@ -179,7 +182,7 @@ static bool agora_raw_output_start(void *data)
     {
         return false;
     }
-    
+
     os_atomic_set_bool(&raw_output->stopping, false);
     os_atomic_set_bool(&raw_output->active, true);
     obs_output_begin_data_capture(raw_output->output, 0);
@@ -226,7 +229,7 @@ static void agora_raw_output_stop(void *data, uint64_t ts)
 #if WriteAudio
     fclose(agoraKit->pfile);
 #endif
-    
+
 #if Agora
     agoraKit->leaveChannel();
 #endif
@@ -236,7 +239,7 @@ static void agora_raw_output_stop(void *data, uint64_t ts)
 static void agora_receive_rawdata_audio(void *data, struct audio_data *frames)
 {
     struct agora_raw_output *raw_output = static_cast<agora_raw_output *>(data);
-    
+
     pthread_mutex_lock(&raw_output->write_mutex);
 
 #if WriteAudio
@@ -271,7 +274,7 @@ static void agora_receive_rawdata_audio(void *data, struct audio_data *frames)
 static void agora_receive_rawdata_video(void *data, struct video_data *frame)
 {
     struct agora_raw_output *raw_output = static_cast<agora_raw_output *>(data);
-    
+
     pthread_mutex_lock(&raw_output->write_mutex);
 
     if (raw_output->stopping)
@@ -387,7 +390,7 @@ static bool agora_encoded_start(void *data)
 static void agora_encoded_destroy(void *data)
 {
     struct agora_encoded_output *stream = static_cast<agora_encoded_output *>(data);
-    
+
     pthread_mutex_destroy(&stream->mutex);
     cout << "agora_encoded_destroy" << endl;
     bfree(stream);
