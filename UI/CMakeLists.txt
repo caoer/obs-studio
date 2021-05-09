@@ -257,7 +257,9 @@ set(obs_SOURCES
 	locked-checkbox.cpp
 	visibility-checkbox.cpp
 	media-slider.cpp
-	undo-stack-obs.cpp)
+	undo-stack-obs.cpp
+	window-init-agora-widget.cpp
+        ag-http-request.cpp)
 
 set(obs_HEADERS
 	${obs_PLATFORM_HEADERS}
@@ -329,7 +331,9 @@ set(obs_HEADERS
 	obs-proxy-style.hpp
 	obs-proxy-style.hpp
 	media-slider.hpp
-	undo-stack-obs.hpp)
+	undo-stack-obs.hpp
+	window-init-agora-widget.hpp
+	ag-http-request.hpp)
 
 set(obs_importers_HEADERS
 	importers/importers.hpp)
@@ -369,7 +373,9 @@ set(obs_UI
 	forms/OBSRemux.ui
 	forms/OBSImporter.ui
 	forms/OBSMissingFiles.ui
-	forms/OBSAbout.ui)
+	forms/OBSAbout.ui
+	forms/AgoraWidget.ui)
+
 
 set(obs_QRC
 	forms/obs.qrc)

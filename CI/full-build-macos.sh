@@ -45,10 +45,13 @@ CI_MACOS_CEF_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+MACOS
 CI_DEPS_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+MACOS_DEPS_VERSION: '([0-9\-]+)'/\1/p")
 CI_VLC_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+VLC_VERSION: '([0-9\.]+)'/\1/p")
 CI_SPARKLE_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+SPARKLE_VERSION: '([0-9\.]+)'/\1/p")
+CI_AGORA_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+AGORA_VERSION: '([0-9\.]+)'/\1/p")
 CI_QT_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+QT_VERSION: '([0-9\.]+)'/\1/p" | /usr/bin/head -1)
 CI_MIN_MACOS_VERSION=$(/bin/cat "${CI_WORKFLOW}" | /usr/bin/sed -En "s/[ ]+MIN_MACOS_VERSION: '([0-9\.]+)'/\1/p")
 NPROC="${NPROC:-$(sysctl -n hw.ncpu)}"
 CURRENT_ARCH=$(uname -m)
+
+AGORA_VERSION=3_4_1
 
 BUILD_DEPS=(
     "obs-deps ${MACOS_DEPS_VERSION:-${CI_DEPS_VERSION}}"
@@ -56,6 +59,7 @@ BUILD_DEPS=(
     "cef ${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}"
     "vlc ${VLC_VERSION:-${CI_VLC_VERSION}}"
     "sparkle ${SPARKLE_VERSION:-${CI_SPARKLE_VERSION}}"
+    "agora ${AGORA_VERSION:-${CI_AGORA_VERSION}}"
 )
 
 if [ -n "${TERM-}" ]; then
@@ -194,6 +198,18 @@ install_vlc() {
     /usr/bin/tar -xf vlc-${1}.tar.xz
 }
 
+install_agora() {
+    hr "Setting up dependency Agora v${1}"
+    ensure_dir "${DEPS_BUILD_DIR}"
+    step "Download..."
+
+    ${CURLCMD} --progress-bar -L -C - -O https://download.agora.io/sdk/release/Agora_Native_SDK_for_Mac_v${1}_FULL.zip
+    step "Cleanup"
+    rm -rf Agora_Native_SDK_for_Mac_FULL
+    step "Unpack ..."
+    /usr/bin/unzip Agora_Native_SDK_for_Mac_v${1}_FULL.zip
+}
+
 install_sparkle() {
     hr "Setting up dependency Sparkle v${1} (might prompt for password)"
     ensure_dir "${DEPS_BUILD_DIR}/sparkle"
@@ -277,6 +293,7 @@ configure_obs_build() {
         -DSWIGDIR="/tmp/obsdeps" \
         -DDepsPath="/tmp/obsdeps" \
         -DVLCPath="${DEPS_BUILD_DIR}/vlc-${VLC_VERSION:-${CI_VLC_VERSION}}" \
+        -DAgoraPath="${DEPS_BUILD_DIR}/Agora_Native_SDK_for_Mac_FULL/libs/" \
         -DBUILD_BROWSER=ON \
         -DBROWSER_LEGACY="$(test "${MACOS_CEF_BUILD_VERSION:-${CI_MACOS_CEF_VERSION}}" -le 3770 && echo "ON" || echo "OFF")" \
         -DWITH_RTMPS=ON \
@@ -668,7 +685,7 @@ obs-build-main() {
     ensure_dir ${CHECKOUT_DIR}
     check_macos_version
     step "Fetching OBS tags..."
-    /usr/bin/git fetch origin --tags
+    # /usr/bin/git fetch origin --tags
     GIT_BRANCH=$(/usr/bin/git rev-parse --abbrev-ref HEAD)
     GIT_HASH=$(/usr/bin/git rev-parse --short HEAD)
     GIT_TAG=$(/usr/bin/git describe --tags --abbrev=0)
